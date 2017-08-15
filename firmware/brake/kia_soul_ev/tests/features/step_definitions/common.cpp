@@ -8,9 +8,9 @@
 #include "communications.h"
 #include "oscc_can.h"
 #include "mcp_can.h"
-#include "steering_control.h"
+#include "brake_control.h"
 #include "can_protocols/fault_can_protocol.h"
-#include "can_protocols/steering_can_protocol.h"
+#include "can_protocols/brake_can_protocol.h"
 #include "globals.h"
 
 using namespace cgreen;
@@ -33,7 +33,7 @@ extern uint8_t *g_mock_mcp_can_send_msg_buf_buf;
 extern unsigned short g_mock_dac_output_a;
 extern unsigned short g_mock_dac_output_b;
 
-extern volatile steering_control_state_s g_steering_control_state;
+extern volatile brake_control_state_s g_brake_control_state;
 
 
 // return to known state before every scenario
@@ -56,25 +56,25 @@ BEFORE()
     g_mock_dac_output_a = USHRT_MAX;
     g_mock_dac_output_b = USHRT_MAX;
 
-    g_steering_control_state.enabled = false;
-    g_steering_control_state.operator_override = false;
-    g_steering_control_state.dtcs = 0;
+    g_brake_control_state.enabled = false;
+    g_brake_control_state.operator_override = false;
+    g_brake_control_state.dtcs = 0;
 }
 
 
-GIVEN("^steering control is enabled$")
+GIVEN("^brake control is enabled$")
 {
-    g_steering_control_state.enabled = 1;
+    g_brake_control_state.enabled = 1;
 }
 
 
-GIVEN("^steering control is disabled$")
+GIVEN("^brake control is disabled$")
 {
-    g_steering_control_state.enabled = 0;
+    g_brake_control_state.enabled = 0;
 }
 
 
-GIVEN("^the torque sensors have a reading of (.*)$")
+GIVEN("^the accelerator position sensors have a reading of (.*)$")
 {
     REGEX_PARAM(int, sensor_val);
 
@@ -82,11 +82,12 @@ GIVEN("^the torque sensors have a reading of (.*)$")
 }
 
 
-GIVEN("^the operator has applied (.*) to the steering wheel$")
+GIVEN("^the operator has applied (.*) to the accelerator$")
 {
-    REGEX_PARAM(int, steering_sensor_val);
 
-    g_mock_arduino_analog_read_return = steering_sensor_val;
+    REGEX_PARAM(int, brake_sensor_val);
+
+    g_mock_arduino_analog_read_return = brake_sensor_val;
 
     check_for_operator_override();
 }
@@ -95,7 +96,7 @@ GIVEN("^the operator has applied (.*) to the steering wheel$")
 THEN("^control should be enabled$")
 {
     assert_that(
-        g_steering_control_state.enabled,
+        g_brake_control_state.enabled,
         is_equal_to(1));
 
     assert_that(
@@ -111,7 +112,7 @@ THEN("^control should be enabled$")
 THEN("^control should be disabled$")
 {
     assert_that(
-        g_steering_control_state.enabled,
+        g_brake_control_state.enabled,
         is_equal_to(0));
 
     assert_that(
