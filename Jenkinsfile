@@ -25,7 +25,7 @@ node('arduino') {
         sh 'cd firmware && mkdir build_kia_soul_petrol_property_tests && cd build_kia_soul_petrol_property_tests && cmake .. -DKIA_SOUL_PETROL=ON -DTESTS=ON -DCMAKE_BUILD_TYPE=Release && make run-property-tests'
         echo 'Kia Soul Petrol Property-Based Tests Complete!'
       }
-      echo 'Kia Soul EV Tests Complete!'
+      echo 'Kia Soul Petrol Tests Complete!'
     }
     stage('Kia Soul EV Tests') {
       parallel 'kia soul ev unit tests': {
